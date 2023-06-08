@@ -162,10 +162,10 @@ class Pixel(object):
         """docstring for __repr__"""
         return str(self.getColorTuple())
 
-
     red = property(getRed, setRed, None, "I'm the red property.")
     green = property(getGreen, setGreen, None, "I'm the green property.")
     blue = property(getBlue, setBlue, None, "I'm the blue property.")
+
 
 ########################################################################################################################
 
@@ -400,42 +400,35 @@ class ListImage(AbstractImage):
 # when a module is imported, the non-function code inside will be executed.
 # However, with this condition, the code will be run only when this file is invoked but not when it is being imported
 if __name__ == '__main__':
-    win = ImageWin("cImage Demo", 800, 500)  # redEyes.gif is 395x489
     oldImage = FileImage('redEyes.gif')
+    win = ImageWin("cImage Demo", oldImage.getWidth() * 2 + 15, oldImage.getHeight() + 15)  # Creates a window to display the pictures
+
     print(oldImage.getWidth(), oldImage.getHeight())
     oldImage.draw(win)
     height = oldImage.getHeight()
     width = oldImage.getWidth()
 
     # newImage is the negative of oldImage
-    newImage = np.zeros((width, height), dtype=Pixel)
+    newImage = np.zeros((height, width), dtype=Pixel)
     row = 0
     col = 0
-    for row in range(oldImage.getHeight()-1):
-        for col in range(oldImage.getWidth()-1):
-            v = oldImage.getPixel(col, row)
+    for col in range(height - 1):                # X
+        for row in range(width - 1):             # Y
+            v = oldImage.getPixel(row, col)
             v.red = 255 - v.red
             v.green = 255 - v.green
             v.blue = 255 - v.blue
-            p = Pixel(v.red, v.blue, v.green)
-            newImage[col][row] = p
-    # creating image object of
-    # above array
 
-    im = im.fromarray(newImage, 'RGB')
-    newImage = im
+            p = v.red, v.green, v.blue
+            newImage[col][row] = [col, row, p]
 
-    newImage.save('negative.png')
+    # creating image object of above array
+    im = im.fromarray(newImage, mode='RGB')
+    im.save('negative.gif')
 
     # show newImage to the right of oldImage
-    newImage2 = AbstractImage(newImage)
-    newImage2.setPosition(newImage.getWidth() + 1, 10)
+    newImage2 = FileImage('negative.gif')
+    newImage2.setPosition(width + 10, 0)
     newImage2.draw(win)
-
-
-
-    # obtain coordinates of left eye
-    print(win.getMouse())
-    print(win.getMouse())
 
     win.exitOnClick()
