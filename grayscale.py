@@ -1,39 +1,44 @@
-import math
 from cImage import *
-import numpy as np
-from numpy import asarray
 
 
-def grayPixel(oldPixel):
-    intensitySum = (oldPixel[:, :, [0]] ** 2) + (oldPixel[:, :, [1]] ** 2) + (oldPixel[:, :, [2]] ** 2)
-    aveRGB = int(math.sqrt(intensitySum / 3))
-    pixel = [aveRGB, aveRGB, aveRGB]
-    newPixel = [oldPixel.height, oldPixel.width, pixel]
-
+def grayPixel(oldPixel, array):
+    intensitySum = (oldPixel.getRed() + oldPixel.getGreen() + oldPixel.getBLue())
+    aveRGB = intensitySum/3
+    newPixel = (aveRGB, aveRGB, aveRGB)
     return newPixel
 
 
 def makeGrayScale(imageFile):
-    oldimage = imageFile.convert('RGB')
-    oldimage = asarray(imageFile)
-    height = oldimage.shape[0]
-    width = oldimage.shape[1]
-    rgb = oldimage.shape[2]
-
-    win = ImageWin("Grayscale", width * 2, height)
-    imageFile.draw(win)
-    newIm = EmptyImage(width, height)
-
+    oldImage = FileImage(imageFile)    # oldImage_rgb = oldImage.convert('RGB')
+    width = oldImage.getWidth()
+    height = oldImage.getHeight()
+    # default rgb set to all 0s
+    newIm = np.zeros((width, height, 3), dtype='uint8') # make three dimensional - x, y, rgb
+    print(newIm.ndim)
     for row in range(height):
         for col in range(width):
             oldPixel = oldImage.getPixel(col, row)
-            newPixel = grayPixel(oldPixel)
-            newIm.setPixel(col, row, newPixel)
+            intensitySum = (oldPixel.getRed() + oldPixel.getGreen() + oldPixel.getBlue())
+            aveRGB = intensitySum / 3
+            newPixel = (aveRGB, aveRGB, aveRGB)
+            newIm[row, col, 0] = aveRGB
+            newIm[row, col, 1] = aveRGB
+            newIm[row, col, 2] = aveRGB
+    data = im.fromarray(newIm, 'RGB')
+    data.save('GrayButterfly.png')
+    data = FileImage('GrayButterfly.png')
 
-    newIm.setPosition(width + 1, 0)
-    newIm.draw(win)
+    # displaying the new image next to the old one
+    myImageWindow = ImageWin("Grayscale", width * 2, height)
+    oldImage.draw(myImageWindow)
+    data.setPosition(width + 1, 0)
+    data.draw(myImageWindow)
+    myImageWindow.exitOnClick()
 
-    win.exitOnClick()
+
+if __name__ == '__main__':
+    makeGrayScale('butterfly.gif')
+
 
 
 if __name__ == '__main__':
